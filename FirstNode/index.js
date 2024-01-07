@@ -3,6 +3,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 const cors = require('cors');
+app.use(express.json());
 
 app.use(cors());
 
@@ -39,6 +40,13 @@ const users = [
 
     },
 ]
+
+
+app.post('/user', (req, res) => {
+    console.log('request', req.body);
+    res.send('Post methood success')
+})
+
 
 app.get('/users', (req, res) => {
     console.log(req.params);
