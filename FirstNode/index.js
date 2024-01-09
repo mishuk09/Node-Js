@@ -12,31 +12,31 @@ const users = [
     {
         "id": 1,
         "name": "Leanne Graham",
-        "username": "Bret",
+        "email": "Bret",
 
     },
     {
         "id": 2,
         "name": "  Pab",
-        "username": "Bret",
+        "email": "Bret",
 
     },
     {
         "id": 3,
         "name": "  Gab",
-        "username": "Bret",
+        "email": "Bret",
 
     },
     {
         "id": 4,
         "name": "  Mahadi",
-        "username": "Bret",
+        "email": "Bret",
 
     },
     {
         "id": 5,
         "name": "  Hasan",
-        "username": "Bret",
+        "email": "Bret",
 
     },
 ]
@@ -44,7 +44,11 @@ const users = [
 
 app.post('/user', (req, res) => {
     console.log('request', req.body);
-    res.send('Post methood success')
+
+    const user = req.body;
+    user.id = users.length + 1;
+    users.push(user)
+    res.send(user)
 })
 
 
