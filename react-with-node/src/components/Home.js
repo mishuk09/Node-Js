@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
 
@@ -19,22 +20,35 @@ const Home = () => {
             fetch(url, {
                 method: 'DELETE'
             })
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data);
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Item deleted successfully");
+                        // Optionally, you can perform any additional actions here after successful deletion
+                    } else {
+                        console.error("Failed to delete item");
+                        // Handle other cases like response status codes outside the 2xx range
+                    }
                 })
+                .catch(error => {
+                    console.error("Error deleting item:", error);
+                    // Handle network errors or other fetch-related issues
+                });
         }
+    };
 
-    }
     return (
         <div>
             <h1>Total user:{users.length}</h1>
             <ul>
                 {
-                    users.map(user => <li
-                        key={user._id}>{user.name}
-                        <button onClick={() => handleDelete(users._id)}>X</button>
-                    </li>)
+                    users.map(user => (
+                        <li key={user._id}>
+                            {user.name}
+                            <Link to={`/update/${user._id}`}><button>Update</button></Link>
+                            <button onClick={() => handleDelete(user._id)}>X</button>
+                        </li>
+                    ))
+
                 }
             </ul>
 

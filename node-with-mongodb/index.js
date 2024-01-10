@@ -44,17 +44,38 @@ async function connectToDB() {
             }
         });
 
+        app.get('/user/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await userCollection.findOne(query);
+            res.send(result);
+
+        })
+
+
+
+
+
         // Endpoint to delete a user by ID
-        app.delete('/users/:id', async (req, res) => {
+        // Endpoint to delete a user by ID
+        app.delete('/user/:id', async (req, res) => {
             try {
                 const id = req.params.id;
                 const query = { _id: ObjectId(id) };
                 const result = await userCollection.deleteOne(query);
-                res.json(result); // Sending the deletion result back to the client
+
+                if (result.deletedCount === 1) {
+                    res.json({ message: 'User deleted successfully' });
+                } else {
+                    res.status(404).json({ error: 'User not found' });
+                }
             } catch (error) {
-                res.status(500).json({ error: error.message });
+                console.error("Error deleting user:", error);
+                res.status(500).json({ error: 'Internal Server Error' });
             }
         });
+
+
 
 
 
