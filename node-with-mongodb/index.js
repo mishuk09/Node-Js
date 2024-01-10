@@ -2,62 +2,78 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
-// const birds = require('./birds')
-// app.use('/birds', birds)
+const { MongoClient } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId;
 
 app.use(cors());
 app.use(express.json());
 
-
-
 const uri = "mongodb+srv://dbpractice:T0B3MXn21ILmgK9q@firstproject.54q3p1k.mongodb.net/";
 const client = new MongoClient(uri, {
-    serverApi: { 
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
 });
 
-async function run() {
+async function connectToDB() {
     try {
         await client.connect();
-        // await client.db("admin").command({ ping: 1 });
-        const userCollection = client.db("dbPractice").collection("user");
-        const user = { name: 'mishuk', email: 'mishuk@gmail.com' };
-        const result = await userCollection.insertOne(user);
-        console.log(`User insert with:${result.insertedId}`);
-    } finally {
-        // Ensures that the client will close when you finish/error
-        await client.close();
+        console.log("Connected to MongoDB");
+
+        const db = client.db("dbPractice");
+        const userCollection = db.collection("user");
+
+        // Endpoint to add a new user
+        app.post('/user', async (req, res) => {
+            try {
+                const newUser = req.body;
+                console.log('Adding new user:', newUser);
+                const result = await userCollection.insertOne(newUser);
+                res.json(result);
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        // Endpoint to fetch all users (for example)
+        app.get('/users', async (req, res) => {
+            try {
+                const users = await userCollection.find().toArray();
+                res.json(users);
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        // Endpoint to delete a user by ID
+        app.delete('/users/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+                const query = { _id: ObjectId(id) };
+                const result = await userCollection.deleteOne(query);
+                res.json(result); // Sending the deletion result back to the client
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+
+
+
+
+
+    } catch (error) {
+        console.error("Error connecting to MongoDB:", error.message);
     }
 }
-run().catch(console.dir);
 
+connectToDB();
 
-app.get('/package.json')
-
-
+// Endpoint for the root
 app.get('/', (req, res) => {
     res.send("Server Running");
-})
+});
 
-app.route('/book')
-    .get((req, res) => {
-        res.send('Get a random book')
-    })
-    .post((req, res) => {
-        res.send('Add a book')
-    })
-    .put((req, res) => {
-        res.send('Update the book')
-    })
-
-
+// Start the server
 app.listen(port, () => {
-    console.log("Server is running....")
-})
-
-
-
+    console.log(`Server is running on port ${port}`);
+});
